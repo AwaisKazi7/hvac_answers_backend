@@ -3,16 +3,17 @@ const db = require('../config/db');
 
 // Create Chat
 exports.createChat = async (req, res) => {
-  const { chat_title, user_id } = req.body;
+  const { chat_title, user_id, thread_id } = req.body;
 
-  if (!chat_title || !user_id) {
-    return res.status(400).json({ message: 'chat title and user id are required.' });
+console.log("/api/chats:", req.body);
+  if (!chat_title || !user_id || !thread_id) {
+    return res.status(400).json({ message: 'chat title, user id, and thread id are required.' });
   }
 
   try {
     const [result] = await db.execute(
-      'INSERT INTO chat_table (chat_title, user_id) VALUES (?, ?)',
-      [chat_title, user_id]
+      'INSERT INTO chat_table (chat_title, user_id, threadid) VALUES (?, ?, ?)',
+      [chat_title, user_id, thread_id]
     );
     const [chat] = await db.execute('SELECT * FROM chat_table WHERE id = ?', [result.insertId]);
     res.status(201).json({ status: 201, message: 'Chat created successfully.', data: chat[0] });

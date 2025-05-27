@@ -6,7 +6,7 @@ module.exports = (req, res, next) => {
   if (token.startsWith('Bearer ')) {
     token = token.slice(7, token.length).trim();
   }
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+  jwt.verify(token, process.env.JWT_SECRET || "default_jwt_secret", (err, decoded) => {
     if (err) return res.status(401).json({ error: 'Unauthorized' });
     req.userId = decoded.id;
     next();

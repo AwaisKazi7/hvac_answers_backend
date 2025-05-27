@@ -1,7 +1,7 @@
 const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { sendResetPassword, sendPasswordResetOtp } = require('../utils/emailSender');
+const { sendResetPassword, sendPasswordResetOtp, sendRegistrationOtp } = require('../utils/emailSender');
 
 // In-memory OTP store (for demo)
 const otpStore = new Map();
@@ -25,7 +25,7 @@ exports.register = async (req, res) => {
     const otp = Math.floor(1000 + Math.random() * 9000).toString(); // 4-digit OTP
     otpStore.set(email, { otp, purpose: 'register', expiresAt: Date.now() + 5 * 60 * 1000 });
 
-    SendRegisterationOtp(email, otp);
+    sendRegistrationOtp(email, otp);
 
     return res.status(200).json({
       status: 200,
@@ -98,7 +98,7 @@ exports.login = async (req, res) => {
 
     const otp = Math.floor(1000 + Math.random() * 9000).toString();
     otpStore.set(email, { otp, purpose: 'login', expiresAt: Date.now() + 5 * 60 * 1000 });
-    SendRegisterationOtp(email, otp);
+    sendRegistrationOtp(email, otp);
     res.status(200).json({
       status: 200,
       message: 'OTP sent for login.',
