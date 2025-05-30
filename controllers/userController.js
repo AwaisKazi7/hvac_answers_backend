@@ -328,17 +328,47 @@ exports.getUserById = async (req, res) => {
 // Update User
 exports.updateUser = async (req, res) => {
   const { username, phone_number } = req.body;
+  const userId = req.params.id;
+  const profileImage = req.file ? req.file.path : null;
+
+  console.log(req.body);
+  console.log('File uploaded:', req.file);
 
   try {
-    await db.execute(
-      'UPDATE user_table SET username = ?, phone_number = ? WHERE id = ?',
-      [username, phone_number, req.params.id]
-    );
+    const fields = [];
+    const values = [];
+
+    if (username) {
+      fields.push("username = ?");
+      values.push(username);
+    }
+
+    if (phone_number) {
+      fields.push("phone_number = ?");
+      values.push(phone_number);
+    }
+
+    if (profileImage) {
+      fields.push("profile_image_url = ?");
+      values.push(profileImage);
+    }
+
+    if (fields.length === 0) {
+      return res.status(400).json({ statusCode: 400, message: "No data provided for update." });
+    }
+
+    values.push(userId);
+
+    const updateQuery = `UPDATE user_table SET ${fields.join(', ')} WHERE id = ?`;
+    await db.execute(updateQuery, values);
+
+    // ✅ Fetch updated user
+    const [userRows] = await db.execute('SELECT id, username, phone_number, profile_image_url FROM user_table WHERE id = ?', [userId]);
 
     res.status(200).json({
       status: 200,
       message: 'User updated successfully.',
-      data: {}
+      data: userRows[0] || {}
     });
   } catch (error) {
     res.status(500).json({
@@ -349,10 +379,14 @@ exports.updateUser = async (req, res) => {
   }
 };
 
+
+
 // Delete User
 exports.deleteUser = async (req, res) => {
   try {
     await db.execute('DELETE FROM user_table WHERE id = ?', [req.params.id]);
+    await db.execute('DELETE FROM chat_table WHERE user_id = ?', [req.params.id]);
+
     res.status(200).json({
       status: 200,
       message: 'User deleted successfully.',

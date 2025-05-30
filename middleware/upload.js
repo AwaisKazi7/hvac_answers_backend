@@ -5,7 +5,7 @@ const path = require('path');
 // Configure storage for image uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'public/documents');
+    cb(null, 'public/profiles');
   },
   filename: (req, file, cb) => {
     // Generate a unique name for the file
@@ -20,10 +20,12 @@ const fileFilter = (req, file, cb) => {
   const ext = path.extname(file.originalname).toLowerCase();
 
   // Check for allowed document extensions
-  if (ext !== '.pdf' && ext !== '.doc' && ext !== '.docx' && ext !== '.xls' && ext !== '.xlsx') {
-    return cb(new Error('Only PDF, Word, and Excel documents are allowed!'), false);
+  // if (ext !== '.pdf' && ext !== '.doc' && ext !== '.docx' && ext !== '.xls' && ext !== '.xlsx') {
+  //   return cb(new Error('Only PDF, Word, and Excel documents are allowed!'), false);
+  // }
+  if (ext !== '.png' && ext !== '.jpg' ) {
+    return cb(new Error('Only jpg and png images are allowed!'), false);
   }
-  
   cb(null, true);
 };
 

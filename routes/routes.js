@@ -4,7 +4,7 @@ const router = express.Router();
 const userController = require('../controllers/userController');
 const chatController = require('../controllers/chatController');
 const authenticate = require('../middleware/auth');
-
+const upload = require('../middleware/upload');
 // Auth
 router.post('/register', userController.register);
 router.post('/login', userController.login);
@@ -22,6 +22,7 @@ router.get('/users', userController.getAllUsers);
 router.get('/users/:id', userController.getUserById);
 router.put('/users/:id', userController.updateUser);
 router.delete('/users/:id', userController.deleteUser);
+router.put('/updateprofile/:id',upload.single('image'), userController.updateUser);
 
 // Chat routes
 router.post('/chats', authenticate, chatController.createChat);
